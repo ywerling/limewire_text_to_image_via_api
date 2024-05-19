@@ -36,9 +36,23 @@ class TextToImageApp(tk.Frame):
         self.image_url_entry = tk.Entry(width=75)
         self.image_url_entry.grid(column=2, row=2)
 
-        response_labels_text = ['status','failure_code','failure_reason','credits_used','credits_remaining']
-        for i, resp in enumerate(response_labels_text):
-            tk.Label(self.parent, text=resp).grid(row=i, column=3)
+        # response_labels_text = ['status','failure_code','failure_reason','credits_used','credits_remaining']
+        # self.response_labels = []
+        # for i, resp in enumerate(response_labels_text):
+        #     new_label = tk.Label(self.parent, text=resp).grid(row=i, column=3)
+        #     self.response_labels.append(new_label)
+
+        self.status_label = tk.Label(text = 'status')
+        self.status_label.grid(row=0, column=3)
+        self.failure_code_label = tk.Label(text = 'failure_code')
+        self.failure_code_label.grid(row=1, column=3)
+        self.failure_reason_label = tk.Label(text = 'failure_reason')
+        self.failure_reason_label.grid(row=2, column=3)
+        self.credits_used_label = tk.Label(text = 'credits_used')
+        self.credits_used_label.grid(row=3, column=3)
+        self.credits_remaining_label = tk.Label(text = 'credits_remaining')
+        self.credits_remaining_label.grid(row=4, column=3)
+
 
     def generate_image(self):
         print("generate image")
@@ -75,7 +89,7 @@ class TextToImageApp(tk.Frame):
         #  'failure_code': None, 'failure_reason': None, 'credits_used': 0.99, 'credits_remaining': 8.0199995, 'data': [
         #     {'asset_id': 'f03b36ed-c9de-480e-b2dc-290c6608533e',
         #      'self': 'https://api.limewire.com/api/assets/f03b36ed-c9de-480e-b2dc-290c6608533e',
-        #      'asset_url': 'https://ai-studio-assets.limewire.media/u/9ff0ef66-17d0-4ef0-9b96-cf1cea9e1709/image/11ef0397-8c2f-4136-99d9-35c3c98a8f4b?Expires=1716026695&Signature=LAoEc7UXVpgWYgHYRDmWKaFDvnM1XzB-BEvG1eQWD9xvZnT0-Ag75nL4Xv~vjs~8MAF~rvIE1QhmhFb87bCa8bZfyAf-Vr7rc1Q7ENF1sMivkINGTYITmXSKnnT6IvV93CPveTlsYjWjbPjofO7Mdz537mw1GBkVk94hsLjZI3w4NrWuWZfH74BASh2osW~ShfIeE0uVGbDrF8DrVF5z37uTCIBXhZaYX48eacvn6hIWPpqBzWGz57PBO1OtWkrmetK~O1rgrL4jwlEDlcJ21WyL3VzUuJon~j-1X1VqqqPsol4Eh7UjVtYVyBSibhnl2kc0XGIER2hXYY35~K2obg__&Key-Pair-Id=K1U52DHN9E92VT',
+        #      'asset_url': 'https://www.yahoo.com',
         #      'type': 'image/jpeg', 'width': 1024, 'height': 1024}]}
         # print(data)
         # print(data['data'][0]['asset_url'])
@@ -85,9 +99,22 @@ class TextToImageApp(tk.Frame):
             webbrowser.open(data['data'][0]['asset_url'])
             print(f"Credits used: {data['credits_used']}")
             print(f"Credits remaining: {data['credits_remaining']}")
+            self.write_query_result(data)
         else:
             print(f"Failure code: {data['failure_code']}")
             print(f"Failure reason: {data['failure_reason']}")
+            self.write_query_result(data)
+
+    def write_query_result(self, data):
+        # self.grid_slaves(row=0, column=3)[0].configure(text=data['status'])
+        # widget = self.grid_slaves(row=1, column=3)
+        # print(self.response_labels)
+        # widget[0].configure(text="empty")
+        self.status_label.config(text=f'Status: {data['status']}')
+        self.failure_code_label.config(text=f'Failure Code: {data['failure_code']}')
+        self.failure_reason_label.config(text=f'Failure Reason: {data['failure_reason']}')
+        self.credits_used_label.config(text=f'Credits Used: {data['credits_used']}')
+        self.credits_remaining_label.config(text=f'Credits Remaining: {data['credits_remaining']}')
 
     def open_browser(self):
         print("open image in browser")

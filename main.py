@@ -1,9 +1,11 @@
 import tkinter as tk
 import requests
-import os
+# import os
 import json
+import webbrowser
 
 LIMEWIRE_ENDPOINT = "https://api.limewire.com/api/image/generation"
+LIMEWIRE_SUCCESS = 'COMPLETED'
 
 class TextToImageApp(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
@@ -34,14 +36,13 @@ class TextToImageApp(tk.Frame):
         self.image_url_entry = tk.Entry(width=75)
         self.image_url_entry.grid(column=2, row=2)
 
-        response_labels = ['status','failure_code','failure_reason','credits_used','credits_remaining']
-        for i, resp in enumerate(response_labels):
+        response_labels_text = ['status','failure_code','failure_reason','credits_used','credits_remaining']
+        for i, resp in enumerate(response_labels_text):
             tk.Label(self.parent, text=resp).grid(row=i, column=3)
 
     def generate_image(self):
         print("generate image")
         # api_key = os.getenv('LIMEWIRE_API_KEY')
-        # print(os.environ.get('LIMEWIRE_API_KEY'))  # This should print 'Some Value'
 
         with open('config.json') as config_file:
             config = json.load(config_file)
@@ -79,7 +80,14 @@ class TextToImageApp(tk.Frame):
         # print(data)
         # print(data['data'][0]['asset_url'])
 
-        self.image_url_entry.insert(0,data['data'][0]['asset_url'])
+        if ( data['status'] == LIMEWIRE_SUCCESS ):
+            self.image_url_entry.insert(0,data['data'][0]['asset_url'])
+            webbrowser.open(data['data'][0]['asset_url'])
+            print(f"Credits used: {data['credits_used']}")
+            print(f"Credits remaining: {data['credits_remaining']}")
+        else:
+            print(f"Failure code: {data['failure_code']}")
+            print(f"Failure reason: {data['failure_reason']}")
 
     def open_browser(self):
         print("open image in browser")
@@ -87,9 +95,18 @@ class TextToImageApp(tk.Frame):
         print(f'image url: {image_url}')
 
 
-
 if __name__ == "__main__":
     window = tk.Tk()
     window.title = "Text to Image Application"
     TextToImageApp(window)
     window.mainloop()
+
+    # success example
+    # {'id': 'fa244ebe-fdd6-45de-a075-6c2da75cab65',
+    #  'self': 'https://api.limewire.com/api/request/fa244ebe-fdd6-45de-a075-6c2da75cab65', 'status': 'COMPLETED',
+    #  'failure_code': None, 'failure_reason': None, 'credits_used': 0.99, 'credits_remaining': 10.0, 'data': [
+    #     {'asset_id': 'fbf6c25b-df89-4326-a9fc-5c6570158dec',
+    #      'self': 'https://api.limewire.com/api/assets/fbf6c25b-df89-4326-a9fc-5c6570158dec',
+    #      'asset_url': 'https://ai-studio-assets.limewire.media/u/9ff0ef66-17d0-4ef0-9b96-cf1cea9e1709/image/82d3290b-0e88-4777-add2-02c886d84e53?Expires=1716113300&Signature=AdzAQGxzzkcMS2AoaRzFAssdTyxI48Zgpc-qE9eU0YRH23iWzhkcw~6SNPXC1f13SqEbF1iLtP8S1F5Vbh1BZYm~5-GAu1WcCUjMDarQF5116KutHN5aBmafc1IhI3EzOJ3tRFZQXf0uJIgKZVM2fX0Wzk2LnbxuLLJgWLJ-yS8GV3La3a13M1XGyXB6AyVgIY77cZQtu5NaBwD7bv6jnswmLnxhawktZU3eO2Pxg5E3nIwmB1grm-8-uhDs9HjlN2BERcwtMrV7PFmKkT6QGPvDu6IqUG9KQzfte7v-0BgxucBXSOyD4DKVYeUKIq~wvcFZIxENqqs1nr-oYAPoxg__&Key-Pair-Id=K1U52DHN9E92VT',
+    #      'type': 'image/jpeg', 'width': 1024, 'height': 1024}]}
+
